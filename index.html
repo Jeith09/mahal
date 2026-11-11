@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Gracious, With Love</title>
+<meta name="description" content="A little something for you, Mahal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine:#5a1a2a; --wine-deep:#2b0b14; --rose:#b8475e; --blush:#f2c9cf;
+    --cream:#fdf6ee; --paper:#fbf1e4; --gold:#c9a25b; --gold-soft:#e6cf9c;
+    --ink:#3a1f25; --muted:#7d5f63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    font-family:'Jost',sans-serif;color:var(--ink);
+    background:radial-gradient(ellipse at top,#6b2034 0%,var(--wine-deep) 70%) fixed;
+    background-color:var(--wine-deep);
+    min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+  }
+
+  /* floating hearts */
+  #sky{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+  .float-heart{position:absolute;bottom:-40px;color:var(--blush);opacity:0;animation:rise linear forwards}
+  @keyframes rise{
+    0%{transform:translateY(0) translateX(0) rotate(0);opacity:0}
+    10%{opacity:var(--o)}
+    100%{transform:translateY(-115vh) translateX(var(--dx)) rotate(var(--r));opacity:0}
+  }
+
+  main{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px 16px}
+  .screen{display:none;width:100%;max-width:440px;flex-direction:column;align-items:center}
+  .screen.active{display:flex;animation:fadeUp .8s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes fadeOut{to{opacity:0;transform:translateY(-12px)}}
+
+  .eyebrow{letter-spacing:.35em;text-transform:uppercase;font-size:11px;color:var(--gold-soft);text-align:center}
+  .eyebrow.dark{color:var(--gold)}
+  .script{font-family:'Great Vibes',cursive;font-weight:400}
+
+  /* ---------- envelope ---------- */
+  .env-title{font-family:'Great Vibes',cursive;color:var(--cream);font-size:46px;text-align:center;line-height:1.1;margin-top:10px}
+  .envelope{
+    position:relative;width:min(340px,86vw);aspect-ratio:3/2;perspective:1000px;cursor:pointer;
+    margin-top:70px;filter:drop-shadow(0 22px 30px rgba(0,0,0,.45));
+  }
+  .env-back{position:absolute;inset:0;background:#d4b19a;border-radius:6px}
+  .env-letter{
+    position:absolute;left:7%;right:7%;top:6%;height:88%;background:var(--paper);border-radius:4px;z-index:2;
+    display:flex;flex-direction:column;align-items:center;padding-top:9%;gap:2px;
+    transition:transform 1s cubic-bezier(.2,.8,.2,1) .55s;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .env-letter span{font-family:'Great Vibes',cursive;font-size:28px;color:var(--rose)}
+  .env-letter small{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .env-front{
+    position:absolute;inset:0;z-index:3;border-radius:6px;
+    background:linear-gradient(160deg,#f3e0d0,#e3c2ab);
+    clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%);
+  }
+  .env-flap{
+    position:absolute;left:0;right:0;top:0;height:62%;z-index:4;
+    background:linear-gradient(180deg,#ebd2be,#d6b097);
+    clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;
+    transition:transform .7s ease,z-index 0s linear .35s;
+  }
+  .envelope.open .env-flap{transform:rotateX(180deg);z-index:1}
+  .envelope.open .env-letter{transform:translateY(-58%)}
+  .seal{
+    position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);z-index:5;
+    width:66px;height:66px;border-radius:50%;border:none;cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,#d25a71,#8a2036 70%);
+    color:var(--gold-soft);font-family:'Great Vibes',cursive;font-size:23px;
+    box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 0 0 4px rgba(255,255,255,.08);
+    transition:opacity .4s,transform .4s;animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+  .envelope.open .seal{opacity:0;animation:none;transform:translate(-50%,-50%) scale(.5)}
+  .to-line{margin-top:34px;text-align:center;color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic}
+  .to-line b{font-style:normal;font-weight:600;display:block;font-size:21px;margin-top:2px;letter-spacing:.02em}
+  .tap{margin-top:20px;color:var(--gold-soft);font-size:11px;letter-spacing:.25em;text-transform:uppercase;animation:blink 2.2s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+
+  /* ---------- paper card ---------- */
+  .card{
+    width:100%;background:var(--paper);border-radius:14px;padding:38px 26px 32px;position:relative;
+    box-shadow:0 30px 60px rgba(0,0,0,.45);
+    background-image:radial-gradient(circle at 20% 0%,rgba(255,255,255,.7),transparent 45%);
+  }
+  .card::before{content:"";position:absolute;inset:10px;border:1px solid rgba(201,162,91,.55);border-radius:9px;pointer-events:none}
+  .card p{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.6;margin-bottom:14px}
+  .greet{font-size:42px;color:var(--wine);margin:10px 0 16px;text-align:center}
+  .ask{text-align:center;font-style:italic;font-weight:600;color:var(--rose);font-size:22px !important}
+  .details{margin:20px 0 22px;padding:18px 8px;text-align:center;border-top:1px solid rgba(201,162,91,.6);border-bottom:1px solid rgba(201,162,91,.6)}
+  .details .time{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;color:var(--wine);line-height:1.1;margin:4px 0 8px}
+  .details p{font-size:17px;margin:0;color:var(--muted);font-style:italic}
+  .sign-off{text-align:right;margin:6px 0 0 !important;font-style:italic}
+  .sig{text-align:right;font-size:40px;color:var(--rose);line-height:1;margin-top:-2px}
+  .actions{display:flex;flex-direction:column;gap:12px;margin-top:26px}
+
+  .btn{
+    border:none;cursor:pointer;width:100%;
+    background:linear-gradient(135deg,var(--rose),var(--wine));color:var(--cream);
+    font-family:'Jost',sans-serif;letter-spacing:.14em;text-transform:uppercase;font-size:13px;font-weight:500;
+    padding:16px 24px;border-radius:999px;box-shadow:0 8px 20px rgba(90,26,42,.35);transition:transform .2s;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:transparent;color:var(--wine);border:1px solid var(--gold);box-shadow:none}
+
+  /* ---------- quiz ---------- */
+  .progress{display:flex;gap:12px;justify-content:center;margin-bottom:14px}
+  .progress span{font-size:17px;color:#e6d4ce;transition:color .4s,transform .4s}
+  .progress span.done{color:var(--rose)}
+  .progress span.now{color:var(--rose);transform:scale(1.35)}
+  .q-count{text-align:center;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted)}
+  .q-cat{text-align:center;font-family:'Great Vibes',cursive;font-size:36px;color:var(--rose);margin-top:6px}
+  .q-text{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:500;text-align:center;line-height:1.3;color:var(--wine);margin:6px 0 24px}
+  .opts{display:flex;flex-direction:column;gap:12px}
+  .opt{
+    display:flex;align-items:center;gap:14px;text-align:left;width:100%;cursor:pointer;
+    background:#fffaf4;border:1px solid rgba(201,162,91,.55);border-radius:12px;padding:14px 16px;
+    font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.35;color:var(--ink);transition:all .25s;
+  }
+  .opt .k{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);display:grid;place-items:center;font-family:'Jost',sans-serif;font-size:12px;color:var(--gold);transition:all .25s}
+  @media (hover:hover){.opt:hover{border-color:var(--rose);transform:translateX(3px)}}
+  .opt.picked{background:var(--rose);color:var(--cream);border-color:var(--rose)}
+  .opt.picked .k{border-color:var(--cream);color:var(--cream)}
+  .q-wrap.out{animation:fadeOut .35s ease forwards}
+  .q-wrap.in{animation:fadeUp .5s ease both}
+  .back{display:block;margin:20px auto 0;background:none;border:none;color:var(--muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+
+  /* ---------- result ---------- */
+  .ticket{text-align:center;padding-top:34px}
+  .ticket-top{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .pkg-emoji{font-size:46px;margin:12px 0 4px}
+  .pkg-no{font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--rose);font-weight:500}
+  .pkg-name{font-family:'Great Vibes',cursive;font-size:48px;color:var(--wine);line-height:1.1;margin:6px 0 4px}
+  .pkg-tag{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:18px !important;margin-bottom:12px !important}
+  .ticket .pkg-desc{font-size:18px}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;text-align:left;margin:18px 0;padding:16px 4px;border-top:1px dashed rgba(201,162,91,.8);border-bottom:1px dashed rgba(201,162,91,.8)}
+  .meta dt{letter-spacing:.15em;text-transform:uppercase;font-size:10px;color:var(--muted);padding-top:4px}
+  .meta dd{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink);font-weight:500}
+  .shot{background:var(--wine);color:var(--cream);border-radius:12px;padding:16px;font-size:14px;line-height:1.55;margin-top:4px}
+  .shot b{color:var(--gold-soft);font-weight:500}
+  .ticket .sig{text-align:center;font-size:34px;margin-top:18px}
+  .forever{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:16px !important;margin-top:4px}
+  .lurk{margin-top:18px;padding:14px 12px;border:1px dashed var(--rose);border-radius:12px;background:#fff6f2;transform:rotate(-1.2deg)}
+  .lurk .lurk-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;color:var(--rose);font-size:19px;line-height:1.4;margin:0}
+  .lurk .lurk-by{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-family:'Jost',sans-serif}
+
+  .link-btn{margin-top:16px;background:none;border:none;color:var(--blush);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+  .vault{margin-top:24px;padding-top:18px;border-top:1px solid rgba(201,162,91,.45)}
+  .vault-label{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .vault-form{display:flex;gap:8px}
+  .vault-form input{flex:1;min-width:0;padding:12px 16px;border-radius:999px;border:1px solid var(--gold);background:#fffaf4;font-family:'Jost',sans-serif;font-size:16px;color:var(--ink);outline:none}
+  .vault-form input:focus{border-color:var(--rose)}
+  .btn.small{width:auto;padding:12px 20px;font-size:12px}
+  .vault-msg{font-size:14px;color:var(--rose);min-height:20px;margin-top:8px;font-family:'Cormorant Garamond',serif;font-style:italic}
+  .shake{animation:shake .4s}
+  @keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+  .menu-card{text-align:center}
+  .menu-title{font-family:'Great Vibes',cursive;font-size:56px;color:var(--wine);line-height:1;margin:10px 0 2px}
+  .menu-sub{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .menu-pkg{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);font-weight:500;margin-top:16px}
+  .menu-list{margin:14px 0 18px;text-align:left}
+  .menu-row{padding:13px 4px;border-bottom:1px dashed rgba(201,162,91,.6)}
+  .menu-row:first-child{border-top:1px dashed rgba(201,162,91,.6)}
+  .menu-row .course{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .menu-row .dish{display:block;font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);margin-top:2px}
+  .menu-card .menu-note{font-size:17px;font-style:italic;color:var(--muted)}
+  .pkg-switch{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:18px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .pkg-switch button{width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:'Jost',sans-serif;font-size:12px;cursor:pointer}
+  .pkg-switch button.on{background:var(--rose);border-color:var(--rose);color:var(--cream)}
+  .menu-row{display:grid;grid-template-columns:1fr auto;align-items:end;column-gap:12px}
+  .menu-row .course{grid-column:1 / -1}
+  .menu-row .price{display:none;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--muted);white-space:nowrap}
+  #customize-btn{margin-top:8px}
+  .custom-card{text-align:center}
+  .custom-card .custom-intro{font-size:17px;font-style:italic;color:var(--wine);margin:6px 0 0}
+  .clear-btn{margin-top:12px !important}
+  .catalog{margin-top:18px;text-align:left}
+  .cat{border-top:1px solid rgba(201,162,91,.45)}
+  .cat:last-child{border-bottom:1px solid rgba(201,162,91,.45)}
+  .cat summary{list-style:none;cursor:pointer;padding:15px 4px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px}
+  .cat summary::-webkit-details-marker{display:none}
+  .cat summary::after{content:'+';margin-left:auto;font-size:18px;line-height:1;color:var(--gold)}
+  .cat[open] summary::after{content:'\2212'}
+  .cat-count{color:var(--cream);background:var(--rose);border-radius:999px;font-size:10px;letter-spacing:0;padding:2px 8px}
+  .cat-count:empty{display:none}
+  .items{padding-bottom:10px}
+  .item{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:10px;transition:background .2s}
+  .item.has{background:#fbe3e5}
+  .item-info{flex:1;min-width:0}
+  .item-name{display:block;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--ink);line-height:1.25}
+  .item-note{display:block;font-size:11px;color:var(--rose);font-style:italic;margin-top:1px}
+  .item-price{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--muted)}
+  .stepper{display:flex;align-items:center;gap:6px;flex:none}
+  .stepper button{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);background:#fffaf4;color:var(--wine);font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+  .stepper button:disabled{opacity:.3;cursor:default}
+  .qty{min-width:20px;text-align:center;font-size:15px;font-weight:500;color:var(--ink)}
+  #s-custom{padding-bottom:76px}
+  .total-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:20;width:calc(100% - 32px);max-width:440px;display:flex;justify-content:space-between;align-items:center;background:var(--wine);color:var(--cream);border-radius:999px;padding:12px 22px;box-shadow:0 10px 30px rgba(0,0,0,.5);font-size:13px;letter-spacing:.05em}
+  .total-bar[hidden]{display:none}
+  .total-bar b{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--gold-soft);margin-left:6px}
+  .burst{position:fixed;left:50%;top:42%;pointer-events:none;z-index:9;font-size:var(--s);animation:burst 1.6s ease-out forwards}
+  @keyframes burst{
+    0%{transform:translate(-50%,-50%) scale(.3);opacity:1}
+    100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1) rotate(var(--r));opacity:0}
+  }
+  footer{position:relative;z-index:1;text-align:center;color:rgba(242,201,207,.5);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:0 16px 26px}
+
+  @media (prefers-reduced-motion:reduce){
+    .seal,.tap{animation:none}
+    .screen.active,.q-wrap.in,.q-wrap.out{animation-duration:.01ms}
+  }
+</style>
+</head>
+<body>
+<div id="sky" aria-hidden="true"></div>
+
+<main>
+  <!-- 1. Envelope -->
+  <section class="screen active" id="s-envelope">
+    <p class="eyebrow">You've got a love letter</p>
+    <h1 class="env-title">Happy 11.11, Mahal</h1>
+
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="env-letter"><small>For my Gorgiee</small><span>I love you</span></div>
+      <div class="env-front"></div>
+      <div class="env-flap"></div>
+      <button class="seal" aria-label="Open the envelope">J&amp;G</button>
+    </div>
+
+    <p class="to-line">To my one and only,<b>Gracious Deansly De Guzman</b></p>
+    <p class="tap" id="tap">Tap the seal to open</p>
+  </section>
+
+  <!-- 2. Letter + invitation -->
+  <section class="screen" id="s-letter">
+    <div class="card">
+      <p class="eyebrow dark">Four Years of Us</p>
+      <h2 class="greet script">My dearest Gorgiee,</h2>
+      <p>Do you still remember the church, nung nag-print tayo? The first time I saw you there, I was anxious and excited all at once. My heart didn't know whether to hide or to walk toward you, but I felt relieved that you didn't flinch. I'm so glad my heart chose you, and so grateful that you chose me.</p>
+      <p>Four years later, here we are on 11.11, the day we chose to celebrate us.</p>
+      <p>With you, even the most ordinary days became my favorites.</p>
+      <p>I love every part of you: your weird little sungit moments, your animated, beautiful smiles, and your very nice AI-like acting that somehow make me fall even harder, and your cute sudden lambings that melt me every single time.</p>
+      <p>And on January 16, I get to marry you. Just writing that makes my heart race the same way it did in that church. I promise to be the best man I can be for you, on our wedding day and every day after.</p>
+      <p>I may not have the best 13th month pay yettt (sa Biyernes pa&hellip;) 😅 but tonight, I want to celebrate <em>us</em>.</p>
+      <p class="ask">So, Mahal&hellip; will you go on a date with me?</p>
+
+      <div class="details">
+        <span class="eyebrow dark">Tonight</span>
+        <div class="time" id="date-time">6:30 PM</div>
+        <p>Just be ready, Gorgiee. I'll take care of the rest.</p>
+      </div>
+
+      <p>But first, answer four little questions about us. There are no wrong answers, only yours.</p>
+
+      <p class="sign-off">Forever yours,</p>
+      <p class="sig script">Jeith</p>
+
+      <div class="actions">
+        <button class="btn" data-start>Yes, Mahal &hearts;</button>
+        <button class="btn ghost" data-start>Of course, a thousand times yes!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Questions -->
+  <section class="screen" id="s-quiz">
+    <div class="card">
+      <div class="q-wrap" id="q-wrap">
+        <div class="progress" id="progress"></div>
+        <p class="q-count" id="q-count"></p>
+        <h2 class="q-cat" id="q-cat"></h2>
+        <h3 class="q-text" id="q-text"></h3>
+        <div class="opts" id="opts"></div>
+      </div>
+      <button class="back" id="back">&larr; Previous question</button>
+    </div>
+  </section>
+
+  <!-- 4. Result -->
+  <section class="screen" id="s-result">
+    <div class="card ticket">
+      <p class="ticket-top">Our 4th Anniversary &middot; Date Pass</p>
+      <div class="pkg-emoji" id="pkg-emoji"></div>
+      <p class="pkg-no" id="pkg-no"></p>
+      <h2 class="pkg-name" id="pkg-name"></h2>
+      <p class="pkg-tag" id="pkg-tag"></p>
+      <p class="pkg-desc" id="pkg-desc"></p>
+
+      <dl class="meta">
+        <dt>For</dt><dd>Gracious Deansly De Guzman</dd>
+        <dt>From</dt><dd>Jeith Ruelson M. Parazo</dd>
+        <dt>When</dt><dd id="when">Tonight &middot; 6:30 PM</dd>
+        <dt>Dress</dt><dd>Your most beautiful smile</dd>
+      </dl>
+
+      <div class="shot">
+        📸 <b>Take a screenshot of this pass</b> and send it to your Mahal, Jeith.<br>
+        See you at 6:30, Gorgiee.
+      </div>
+
+      <div class="lurk">
+        <p class="lurk-line">&ldquo;I will pursue you earlier&hellip; I am here, lurkingg!&rdquo; 👀</p>
+        <p class="lurk-by">&mdash; your Mahal</p>
+      </div>
+
+      <p class="sig script">I love you, Gorgiee</p>
+      <p class="forever" id="countdown">Four years down, forever to go.</p>
+
+      <div class="vault">
+        <div class="vault-label">🔒 For Jeith's eyes only</div>
+        <form class="vault-form" id="vault-form" autocomplete="off">
+          <input id="vault-pass" type="password" placeholder="Password" aria-label="Password" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button class="btn small" type="submit">Unlock</button>
+        </form>
+        <div class="vault-msg" id="vault-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Secret menu (unlocked by Jeith) -->
+  <section class="screen" id="s-menu">
+    <div class="card menu-card">
+      <p class="eyebrow dark">Tonight's Table</p>
+      <h2 class="menu-title">Kozzina</h2>
+      <div class="menu-sub">Restaurant and Bar</div>
+      <div class="menu-pkg" id="menu-pkg"></div>
+      <div class="menu-list" id="menu-list"></div>
+      <p class="menu-note">Every dish was chosen from your answers, and every one of them is seafood-free, just for you, Gorgiee.</p>
+      <p class="sig script" style="text-align:center;font-size:34px">Happy 11.11, Mahal</p>
+
+      <button class="btn ghost small" id="customize-btn" type="button">Want to customize? 💭</button>
+      <button class="back" id="menu-back">&larr; Back to the Date Pass</button>
+    </div>
+  </section>
+
+  <!-- 6. Customize: pick from the whole (seafood-free) menu -->
+  <section class="screen" id="s-custom">
+    <div class="card custom-card">
+      <p class="eyebrow dark">Let's Decide Together</p>
+      <h2 class="menu-title" style="font-size:46px">Our Own Menu</h2>
+      <p class="custom-intro">Pick anything you like, Mahal. Everything here is seafood-free.</p>
+      <div class="pkg-switch" id="pkg-switch"><span>Start from package</span></div>
+      <button class="back clear-btn" id="clear-btn" type="button">Clear all</button>
+      <div class="catalog" id="catalog"></div>
+      <button class="back" id="custom-back" type="button">&larr; Back to tonight's menu</button>
+    </div>
+  </section>
+</main>
+
+<footer>Made with love by Jeith &middot; for Gracious</footer>
+
+<div class="total-bar" id="total-bar" hidden>
+  <span id="total-count">0 items</span>
+  <span>Total <b id="total-val">₱0</b></span>
+</div>
+
+<script>
+  /* ====== Questions: all about her and us, nothing about tonight ======
+     Each answer quietly points to one of the 4 date packages (p: 0–3). */
+  const QUESTIONS = [
+    {
+      cat: "Us in One Word",
+      q: "If you could describe our four years in just one word, what would it be?",
+      options: [
+        { t: "Sweet", p: 0 },
+        { t: "Fun", p: 1 },
+        { t: "Strong", p: 2 },
+        { t: "Home", p: 3 }
+      ]
+    },
+    {
+      cat: "Our Color",
+      q: "Which color reminds you most of us?",
+      options: [
+        { t: "Soft pastel", p: 0 },
+        { t: "Champagne", p: 1 },
+        { t: "Nude", p: 2 },
+        { t: "Beige", p: 3 }
+      ]
+    },
+    {
+      cat: "Our Love Story",
+      q: "If our love story were a time of day, what would it be?",
+      options: [
+        { t: "Sunrise, a beautiful beginning", p: 0 },
+        { t: "Bright noon, full of energy and laughter", p: 1 },
+        { t: "Golden sunset, deep and steady", p: 2 },
+        { t: "Quiet night, calm and peaceful", p: 3 }
+      ]
+    },
+    {
+      cat: "My Favorite Thing",
+      q: "What do you love most about us, Gorgiee?",
+      options: [
+        { t: "How we started", p: 0 },
+        { t: "How we laugh together", p: 1 },
+        { t: "How we've grown", p: 2 },
+        { t: "How we feel like home to each other", p: 3 }
+      ]
+    }
+  ];
+
+  const PACKAGES = [
+    {
+      no: 1, emoji: "💌", name: "The Sweet Classic",
+      tag: "Like the first chapter of us",
+      desc: "Your heart picked the sweetness of us, the same sweetness I felt the very first time I saw you in that church."
+    },
+    {
+      no: 2, emoji: "✨", name: "The Sparkling Kilig",
+      tag: "Bright, playful, and full of kilig",
+      desc: "Your heart picked the fun in us: the laughter, the kulitan, and the kilig that four years haven't faded one bit."
+    },
+    {
+      no: 3, emoji: "❤️", name: "The Forever Strong",
+      tag: "Steady, deep, and true",
+      desc: "Your heart picked the strength of us: everything we've grown through together, and everything we're building toward January 16."
+    },
+    {
+      no: 4, emoji: "🏡", name: "The Cozy Forever",
+      tag: "Warm, like coming home",
+      desc: "Your heart picked the home in us: the quiet comfort of knowing that wherever you are is where I belong."
+    }
+  ];
+
+  const $ = s => document.querySelector(s);
+
+  // Today's date on the invitation and the pass
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  $('#when').textContent = `Tonight, ${today} · 6:30 PM`;
+
+  // Countdown to the wedding (January 16)
+  (function () {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let wedding = new Date(now.getFullYear(), 0, 16);
+    if (wedding < midnight) wedding = new Date(now.getFullYear() + 1, 0, 16);
+    const days = Math.round((wedding - midnight) / 86400000);
+    $('#countdown').textContent = days > 0
+      ? `${days} days until January 16, when I marry you.`
+      : 'Today, I marry you.';
+  })();
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ---- floating hearts ---- */
+  const sky = $('#sky');
+  const glyphs = ['♥', '❤', '♡'];
+  function spawnHeart() {
+    const h = document.createElement('span');
+    h.className = 'float-heart';
+    h.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.fontSize = (10 + Math.random() * 22) + 'px';
+    h.style.setProperty('--o', (0.25 + Math.random() * 0.45).toFixed(2));
+    h.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px');
+    h.style.setProperty('--r', (Math.random() * 90 - 45) + 'deg');
+    const d = 8 + Math.random() * 8;
+    h.style.animationDuration = d + 's';
+    sky.appendChild(h);
+    setTimeout(() => h.remove(), d * 1000);
+  }
+  for (let i = 0; i < 8; i++) setTimeout(spawnHeart, i * 400);
+  setInterval(spawnHeart, 700);
+
+  /* ---- heart burst ---- */
+  function burst(n) {
+    const colors = ['#b8475e', '#c9a25b', '#f2c9cf', '#ffffff'];
+    for (let i = 0; i < n; i++) {
+      const h = document.createElement('span');
+      h.className = 'burst';
+      h.textContent = '♥';
+      const a = Math.random() * Math.PI * 2, dist = 90 + Math.random() * 180;
+      h.style.setProperty('--x', Math.cos(a) * dist + 'px');
+      h.style.setProperty('--y', Math.sin(a) * dist + 'px');
+      h.style.setProperty('--r', (Math.random() * 120 - 60) + 'deg');
+      h.style.setProperty('--s', (12 + Math.random() * 18) + 'px');
+      h.style.color = colors[i % colors.length];
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 1700);
+    }
+  }
+
+  /* ---- envelope ---- */
+  const env = $('#envelope');
+  let opened = false;
+  env.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+    env.classList.add('open');
+    $('#tap').style.visibility = 'hidden';
+    burst(16);
+    setTimeout(() => show('s-letter'), 1900);
+  });
+
+  /* ---- quiz ---- */
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  const shuffled = QUESTIONS.map(q => shuffle(q.options));
+  const answers = [];
+  let idx = 0, busy = false;
+
+  function renderQ() {
+    const q = QUESTIONS[idx];
+    $('#progress').innerHTML = QUESTIONS.map((_, i) =>
+      `<span class="${i < idx ? 'done' : i === idx ? 'now' : ''}">♥</span>`).join('');
+    $('#q-count').textContent = `Question ${idx + 1} of ${QUESTIONS.length}`;
+    $('#q-cat').textContent = q.cat;
+    $('#q-text').textContent = q.q;
+    const opts = $('#opts');
+    opts.innerHTML = '';
+    shuffled[idx].forEach((o, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt' + (answers[idx] === o.p ? ' picked' : '');
+      b.innerHTML = `<span class="k">${'ABCD'[i]}</span><span></span>`;
+      b.lastChild.textContent = o.t;
+      b.addEventListener('click', () => choose(o.p, b));
+      opts.appendChild(b);
+    });
+    $('#back').style.visibility = idx > 0 ? 'visible' : 'hidden';
+  }
+
+  function choose(p, btn) {
+    if (busy) return;
+    busy = true;
+    answers[idx] = p;
+    document.querySelectorAll('.opt').forEach(b => b.classList.remove('picked'));
+    btn.classList.add('picked');
+    setTimeout(() => {
+      const w = $('#q-wrap');
+      w.classList.add('out');
+      setTimeout(() => {
+        w.classList.remove('out');
+        busy = false;
+        if (idx < QUESTIONS.length - 1) {
+          idx++;
+          renderQ();
+          w.classList.add('in');
+          setTimeout(() => w.classList.remove('in'), 500);
+        } else {
+          showResult();
+        }
+      }, 350);
+    }, 450);
+  }
+
+  $('#back').addEventListener('click', () => {
+    if (busy || idx === 0) return;
+    idx--;
+    renderQ();
+  });
+
+  document.querySelectorAll('[data-start]').forEach(b =>
+    b.addEventListener('click', () => { burst(20); renderQ(); show('s-quiz'); }));
+
+  /* ---- result ---- */
+  function pickPackage() {
+    const count = [0, 0, 0, 0];
+    answers.forEach(p => count[p]++);
+    const max = Math.max(...count);
+    // tie-breaker: whichever tied package she picked first (question 1 matters most)
+    for (const p of answers) if (count[p] === max) return p;
+    return 0;
+  }
+
+  function fillResult(i) {
+    resultIdx = i;
+    const p = PACKAGES[i];
+    $('#pkg-emoji').textContent = p.emoji;
+    $('#pkg-no').textContent = `Date Package No. ${p.no}`;
+    $('#pkg-name').textContent = p.name;
+    $('#pkg-tag').textContent = p.tag;
+    $('#pkg-desc').textContent = p.desc;
+  }
+
+  function showResult() {
+    const i = pickPackage();
+    fillResult(i);
+    show('s-result');
+    setTimeout(() => burst(40), 300);
+  }
+
+  let resultIdx = 0;
+
+  /* ---- the secret menu (password: kept encoded so it isn't readable at a glance) ---- */
+  const MENU_DATA = "W3siaXRlbXMiOiBbWyJQYW1wYWdhbmEgwrcgQXBwZXRpemVyIiwgIlNpc2lnIFRyaWFuZ3VsbyIsIDMyMF0sIFsiVWxhbSDCtyBNYWluIENvdXJzZSIsICJDaGlja2VuIFBvcmsgQWRvYm8iLCA2MDBdLCBbIkthbmluIMK3IFJpY2UiLCAiR2FybGljIFJpY2UgZm9yIHR3byIsIDE1MF0sIFsiSW51bWluIMK3IERyaW5rcyIsICJHb2xkZW4gTHljaGVlIENpdHJ1cyBUZWEiLCAyODBdLCBbIlBhbmdoaW1hZ2FzIMK3IERlc3NlcnQiLCAiS296emluYSBIYWxvLUhhbG8iLCAyNDBdXX0sIHsiaXRlbXMiOiBbWyJQYW1wYWdhbmEgwrcgQXBwZXRpemVyIiwgIk11c2hyb29tIENoaWNoYXJvbiIsIDMyMF0sIFsiVWxhbSDCtyBNYWluIENvdXJzZSIsICJNZWNoYWRvIEJha2VkIiwgNjUwXSwgWyJLYW5pbiDCtyBSaWNlIiwgIlN0ZWFtZWQgSmFzbWluZSBSaWNlIGZvciB0d28iLCAxMjBdLCBbIkludW1pbiDCtyBEcmlua3MiLCAiU29kYSBGbGlnaHQgKElzbGVzLCBDdXJhdGVkKSIsIDM2MF0sIFsiUGFuZ2hpbWFnYXMgwrcgRGVzc2VydCIsICJUcmVzIElzbGFzIEtha2FuaW4iLCAyNzBdXX0sIHsiaXRlbXMiOiBbWyJFbnNhbGFkYSDCtyBTYWxhZCIsICJGcmllZCBDaGlja2VuIFNhbGFkIiwgMzgwXSwgWyJVbGFtIMK3IE1haW4gQ291cnNlIiwgIkJlZWYgVGludXR1bmdhbiIsIDc1MF0sIFsiS2FuaW4gwrcgUmljZSIsICJHYXJsaWMgUmljZSBmb3IgdHdvIiwgMTUwXSwgWyJJbnVtaW4gwrcgRHJpbmtzIiwgIlN1bnJpc2UgUGFzc2lvbiBUZWEiLCAyODBdLCBbIlBhbmdoaW1hZ2FzIMK3IERlc3NlcnQiLCAiS296emluYSBIYWxvLUhhbG8iLCAyNDBdXX0sIHsiaXRlbXMiOiBbWyJTYWJhdyDCtyBTb3VwIiwgIlNpbmFtcGFsdWthbmcgTWFub2siLCA0NTBdLCBbIlVsYW0gwrcgTWFpbiBDb3Vyc2UiLCAiVGluYXBhbmcgTWFub2siLCA0ODBdLCBbIkthbmluIMK3IFJpY2UiLCAiU3RlYW1lZCBKYXNtaW5lIFJpY2UgZm9yIHR3byIsIDEyMF0sIFsiSW51bWluIMK3IERyaW5rcyIsICJKYXNtaW5lIERhbGFuZGFuIGZvciB0d28iLCAyNDBdLCBbIlBhbmdoaW1hZ2FzIMK3IERlc3NlcnQiLCAiTG9sYSdzIEhhbG8tSGFsbyIsIDIyMF1dfV0=";
+  const KEY = "YWRp"; // "adi"
+  let MENUS = null;
+  function menus() {
+    if (!MENUS) {
+      const bytes = Uint8Array.from(atob(MENU_DATA), c => c.charCodeAt(0));
+      MENUS = JSON.parse(new TextDecoder().decode(bytes));
+    }
+    return MENUS;
+  }
+  const peso = n => '₱' + n.toLocaleString('en-US');
+  const norm = v => v.toLowerCase().replace(/\s+/g, '');
+
+  function renderMenu(i) {
+    $('#menu-pkg').textContent = `Package No. ${i + 1} · ${PACKAGES[i].name}`;
+    const list = $('#menu-list');
+    list.innerHTML = '';
+    menus()[i].items.forEach(([course, dish, price]) => {
+      const row = document.createElement('div');
+      row.className = 'menu-row';
+      row.innerHTML = '<span class="course"></span><span class="dish"></span><span class="price"></span>';
+      row.children[0].textContent = course;
+      row.children[1].textContent = dish;
+      row.children[2].textContent = peso(price);
+      list.appendChild(row);
+    });
+  }
+
+  /* ---- customize: whole seafood-free menu with a live total ---- */
+  const CUSTOM_DATA = "eyJjYXRhbG9nIjogW3siYyI6ICJQYW1wYWdhbmEgwrcgQXBwZXRpemVyIiwgIm9wZW4iOiB0cnVlLCAiaXRlbXMiOiBbeyJpZCI6ICJzaXNpZyIsICJuIjogIlNpc2lnIFRyaWFuZ3VsbyIsICJwIjogMzIwfSwgeyJpZCI6ICJidWxha2xhayIsICJuIjogIkNoaWNoYXJvbiBCdWxha2xhayBUd28gV2F5cyIsICJwIjogNDMwfSwgeyJpZCI6ICJiYWx1dCIsICJuIjogIkJhbHV0IFBhdGUiLCAicCI6IDMyMH0sIHsiaWQiOiAidG9rd2EiLCAibiI6ICJUb2t3YSBhdCBCYWduZXQiLCAicCI6IDMyMCwgIm5vdGUiOiAiQXNrIHN0YWZmIGlmIHRoZSBkcmVzc2luZyBoYXMgZmlzaCBzYXVjZSJ9LCB7ImlkIjogIm11c2hyb29tIiwgIm4iOiAiTXVzaHJvb20gQ2hpY2hhcm9uIiwgInAiOiAzMjB9XX0sIHsiYyI6ICJFbnNhbGFkYSDCtyBTYWxhZCIsICJvcGVuIjogdHJ1ZSwgIml0ZW1zIjogW3siaWQiOiAiY2h4c2FsYWQiLCAibiI6ICJGcmllZCBDaGlja2VuIFNhbGFkIiwgInAiOiAzODB9XX0sIHsiYyI6ICJTYWJhdyDCtyBTb3VwIiwgIm9wZW4iOiB0cnVlLCAiaXRlbXMiOiBbeyJpZCI6ICJzaW5hbXBhbHVrYW4iLCAibiI6ICJTaW5hbXBhbHVrYW5nIE1hbm9rIiwgInAiOiA0NTB9LCB7ImlkIjogImJ1bGFsbyIsICJuIjogIkJ1bGFsb25nIEthbnNpIiwgInAiOiA4MzB9XX0sIHsiYyI6ICJQYXN0YSIsICJvcGVuIjogdHJ1ZSwgIml0ZW1zIjogW3siaWQiOiAiY2FubmVsb25pIiwgIm4iOiAiQ2FsZGVyZXRhIENhbm5lbG9uaSIsICJwIjogNDgwfV19LCB7ImMiOiAiVWxhbSDCtyBNYWluIENvdXJzZSIsICJvcGVuIjogdHJ1ZSwgIml0ZW1zIjogW3siaWQiOiAidGludXR1bmdhbiIsICJuIjogIkJlZWYgVGludXR1bmdhbiIsICJwIjogNzUwfSwgeyJpZCI6ICJhZG9ibyIsICJuIjogIkNoaWNrZW4gUG9yayBBZG9ibyIsICJwIjogNjAwfSwgeyJpZCI6ICJwYXRhIiwgIm4iOiAiQ3Jpc3B5IFBhdGEiLCAicCI6IDEyMDB9LCB7ImlkIjogIm1lY2hhZG8iLCAibiI6ICJNZWNoYWRvIEJha2VkIiwgInAiOiA2NTB9LCB7ImlkIjogInRpbmFwYW5nIiwgIm4iOiAiVGluYXBhbmcgTWFub2siLCAicCI6IDQ4MH0sIHsiaWQiOiAibGVuZ3VhIiwgIm4iOiAiT3ggVG9uZ3VlIExlbmd1YSIsICJwIjogNzUwfSwgeyJpZCI6ICJyaWJzIiwgIm4iOiAiQmFyYWtvIEJhYnkgQmFjayBSaWJzIiwgInAiOiAxMjAwfV19LCB7ImMiOiAiSW5hdG8gwrcgR3JpbGwiLCAib3BlbiI6IHRydWUsICJpdGVtcyI6IFt7ImlkIjogInJpYjMzMCIsICJuIjogIjMzMGcgUmliIEV5ZSBTdGVhayIsICJwIjogMTg1MH0sIHsiaWQiOiAicmliNTAwIiwgIm4iOiAiNTAwZyBSaWIgRXllIFN0ZWFrIiwgInAiOiAyNTAwfSwgeyJpZCI6ICJwb3JrY2hvcCIsICJuIjogIlBvcmtjaG9wIiwgInAiOiA3NTB9XX0sIHsiYyI6ICJLYW5pbiDCtyBSaWNlIiwgIm9wZW4iOiB0cnVlLCAiaXRlbXMiOiBbeyJpZCI6ICJodW1iYSIsICJuIjogIlBvcmsgSHVtYmEgd2l0aCBSaWNlIiwgInAiOiA0MjB9LCB7ImlkIjogInBhc3RpbCIsICJuIjogIkNoaWNrZW4gYW5kIFBvcmsgUGFzdGlsIiwgInAiOiAzNzB9LCB7ImlkIjogImphc21pbmUiLCAibiI6ICJTdGVhbWVkIEphc21pbmUgUmljZSIsICJwIjogNjB9LCB7ImlkIjogImdhcmxpYyIsICJuIjogIkdhcmxpYyBSaWNlIiwgInAiOiA3NX1dfSwgeyJjIjogIlBhbmdoaW1hZ2FzIMK3IERlc3NlcnQiLCAib3BlbiI6IHRydWUsICJpdGVtcyI6IFt7ImlkIjogImtha2FuaW4iLCAibiI6ICJUcmVzIElzbGFzIEtha2FuaW4iLCAicCI6IDI3MH0sIHsiaWQiOiAibG9sYWhoIiwgIm4iOiAiTG9sYSdzIEhhbG8tSGFsbyIsICJwIjogMjIwfSwgeyJpZCI6ICJrb3poaCIsICJuIjogIktvenppbmEgSGFsby1IYWxvIiwgInAiOiAyNDB9XX0sIHsiYyI6ICJUc2FhIMK3IFRlYSAoZ29vZCBmb3IgMuKAkzMpIiwgIm9wZW4iOiBmYWxzZSwgIml0ZW1zIjogW3siaWQiOiAibHljaGVlIiwgIm4iOiAiR29sZGVuIEx5Y2hlZSBDaXRydXMiLCAicCI6IDI4MH0sIHsiaWQiOiAic3VucmlzZSIsICJuIjogIlN1bnJpc2UgUGFzc2lvbiBUZWEiLCAicCI6IDI4MH0sIHsiaWQiOiAib29sb25nIiwgIm4iOiAiU2lsa2VuIE1lbG9uIE9vbG9uZyIsICJwIjogMjgwfV19LCB7ImMiOiAiRnJlc2ggRnJ1aXQgU2hha2VzIiwgIm9wZW4iOiBmYWxzZSwgIml0ZW1zIjogW3siaWQiOiAicm1hbmdvIiwgIm4iOiAiUmlwZSBNYW5nbyBTaGFrZSIsICJwIjogMTg1fSwgeyJpZCI6ICJnbWFuZ28iLCAibiI6ICJHcmVlbiBNYW5nbyBTaGFrZSIsICJwIjogMTg1fSwgeyJpZCI6ICJtZWxvbiIsICJuIjogIk1lbG9uIFNoYWtlIiwgInAiOiAxODV9LCB7ImlkIjogImNvY29udXQiLCAibiI6ICJDb2NvbnV0IFNoYWtlIiwgInAiOiAxODV9LCB7ImlkIjogIndhdGVybWVsb24iLCAibiI6ICJXYXRlcm1lbG9uIFNoYWtlIiwgInAiOiAxODV9LCB7ImlkIjogImZvdXJzZWFzb24iLCAibiI6ICJGb3VyIFNlYXNvbiBTaGFrZSIsICJwIjogMjEwfSwgeyJpZCI6ICJhdm9jYWRvIiwgIm4iOiAiQXZvY2FkbyBTaGFrZSAoc2Vhc29uYWwpIiwgInAiOiAyMjB9XX0sIHsiYyI6ICJSZWZyZXNoZXJzIiwgIm9wZW4iOiBmYWxzZSwgIml0ZW1zIjogW3siaWQiOiAiZ3VhdmFwb20iLCAibiI6ICJHdWF2YSBQb21lbG8iLCAicCI6IDE3MH0sIHsiaWQiOiAibWFuZ290YW0iLCAibiI6ICJNYW5nbyBUYW1hcmluZCIsICJwIjogMTcwfSwgeyJpZCI6ICJzdHJhd2NhbCIsICJuIjogIlN0cmF3YmVycnkgQ2FsYW1hbnNpIiwgInAiOiAxNzB9LCB7ImlkIjogImd1eWFiYW5vIiwgIm4iOiAiR3V5YWJhbm8gSWNlZCBUZWEiLCAicCI6IDEyMH0sIHsiaWQiOiAiZGFsYW5kYW4iLCAibiI6ICJKYXNtaW5lIERhbGFuZGFuIiwgInAiOiAxMjB9XX0sIHsiYyI6ICJTb2RhIEtvenppbmEgwrcgRnJ1aXQgRml6emVzIiwgIm9wZW4iOiBmYWxzZSwgIml0ZW1zIjogW3siaWQiOiAidHVyb24iLCAibiI6ICJHaW5nZXIgQmVlciBUdXJvbiIsICJwIjogMTgwfSwgeyJpZCI6ICJtYW5nb3NhZ28iLCAibiI6ICJNYW5nbyBTYWdvIiwgInAiOiAyMDB9LCB7ImlkIjogImJ1a29wYW5kYW4iLCAibiI6ICJCdWtvIFBhbmRhbiIsICJwIjogMjAwfSwgeyJpZCI6ICJhbXBhbGF5YSIsICJuIjogIkFtcGFsYXlhIEd1YXZhIiwgInAiOiAxODB9LCB7ImlkIjogImdyYXBlIiwgIm4iOiAiR3JlZW4gR3JhcGUgUm9zZSIsICJwIjogMTgwfSwgeyJpZCI6ICJkdXJpYW4iLCAibiI6ICJNYW5nbyBEdXJpYW4iLCAicCI6IDE4MH0sIHsiaWQiOiAiZmxpZ2h0IiwgIm4iOiAiU29kYSBGbGlnaHQgKGFsbCBzaXgpIiwgInAiOiAzNjB9XX0sIHsiYyI6ICJTb2RhICYgV2F0ZXIiLCAib3BlbiI6IGZhbHNlLCAiaXRlbXMiOiBbeyJpZCI6ICJjb2tlIiwgIm4iOiAiQ29rZSIsICJwIjogODV9LCB7ImlkIjogImNva2V6ZXJvIiwgIm4iOiAiQ29rZSBaZXJvIiwgInAiOiA4NX0sIHsiaWQiOiAic3ByaXRlIiwgIm4iOiAiU3ByaXRlIiwgInAiOiA4NX0sIHsiaWQiOiAicm95YWwiLCAibiI6ICJSb3lhbCIsICJwIjogODV9LCB7ImlkIjogIndhdGVyIiwgIm4iOiAiQm90dGxlZCBXYXRlciIsICJwIjogNDV9XX0sIHsiYyI6ICJDb2NrdGFpbHMiLCAib3BlbiI6IGZhbHNlLCAiaXRlbXMiOiBbeyJpZCI6ICJ3aGlza3kiLCAibiI6ICJXaGlza3kgU291ciIsICJwIjogMzgwfSwgeyJpZCI6ICJhbWFyZXR0byIsICJuIjogIkFtYXJldHRvIFNvdXIiLCAicCI6IDM4MH0sIHsiaWQiOiAiZGFpcXVpcmkiLCAibiI6ICJEYWlxdWlyaSIsICJwIjogMzgwfSwgeyJpZCI6ICJtYXJnYXJpdGEiLCAibiI6ICJNYXJnYXJpdGEiLCAicCI6IDM4MH0sIHsiaWQiOiAiYmVlcyIsICJuIjogIkJlZSdzIEtuZWVzIiwgInAiOiAzODB9LCB7ImlkIjogIm9sZGZhc2giLCAibiI6ICJPbGQgRmFzaGlvbmVkIiwgInAiOiAzODB9LCB7ImlkIjogIm5lZ3JvbmkiLCAibiI6ICJOZWdyb25pIiwgInAiOiAzODB9LCB7ImlkIjogImJvdWxldiIsICJuIjogIkJvdWxldmFyZGllciIsICJwIjogMzgwfSwgeyJpZCI6ICJkYXJrc3Rvcm15IiwgIm4iOiAiRGFyayAmIFN0b3JteSIsICJwIjogMzMwfSwgeyJpZCI6ICJnaW50b25pYyIsICJuIjogIkdpbiAmIFRvbmljIiwgInAiOiAzMzB9LCB7ImlkIjogImhpZ2hiYWxsIiwgIm4iOiAiSGlnaCBCYWxsIiwgInAiOiAzMzB9LCB7ImlkIjogIm1vaml0byIsICJuIjogIk1vaml0byIsICJwIjogMzMwfSwgeyJpZCI6ICJ1YmViYXNpIiwgIm4iOiAiVWJlL0Jhc2kiLCAicCI6IDQwMH0sIHsiaWQiOiAiY2FwdHViZSIsICJuIjogIk9sZCBDYXB0LiBVYmUiLCAicCI6IDQwMH0sIHsiaWQiOiAidWJlbmVncm9uaSIsICJuIjogIkNsYXJpZmllZCBVYmUgTmVncm9uaSIsICJwIjogNDAwfSwgeyJpZCI6ICJ0YW1hcml0YSIsICJuIjogIlRhbWFyaW5kIE1hcmdhcml0YSIsICJwIjogNDAwfSwgeyJpZCI6ICJwb21lbG9nIiwgIm4iOiAiUG9tZWxvZyIsICJwIjogMzAwfSwgeyJpZCI6ICJnZWxpZ2luIiwgIm4iOiAiR2VsaWdpbiIsICJwIjogMzAwfSwgeyJpZCI6ICJjaXRyaXF1aWxhIiwgIm4iOiAiQ2l0cmlxdWlsYSIsICJwIjogMzAwfSwgeyJpZCI6ICJnYWxhY3RpYyIsICJuIjogIkdhbGFjdGljIiwgInAiOiAzMDB9LCB7ImlkIjogImFwZXJvbCIsICJuIjogIkFwZXJvbCBTcHJpdHoiLCAicCI6IDM1MH0sIHsiaWQiOiAibXVzY2F0byIsICJuIjogIk11c2NhdG8gU3ByaXR6IiwgInAiOiAzNTB9LCB7ImlkIjogInNhbmdyaWFwIiwgIm4iOiAiU2FuZ3JpYSBQYXJhZGlzZSIsICJwIjogMzUwfSwgeyJpZCI6ICJwaW5rc2FuZ3JpYSIsICJuIjogIlBpbmsgU2FuZ3JpYSIsICJwIjogMzUwfV19LCB7ImMiOiAiQmVlciIsICJvcGVuIjogZmFsc2UsICJpdGVtcyI6IFt7ImlkIjogInBpbHNlbiIsICJuIjogIlNNQiBQYWxlIFBpbHNlbiIsICJwIjogMTIwfSwgeyJpZCI6ICJzbWJsaWdodCIsICJuIjogIlNNQiBMaWdodCIsICJwIjogMTIwfSwgeyJpZCI6ICJzdXBlcmRyeSIsICJuIjogIlN1cGVyIERyeSIsICJwIjogMTIwfSwgeyJpZCI6ICJtYWx0IiwgIm4iOiAiU01CIE1hbHQgUHJlbWl1bSIsICJwIjogMTQwfSwgeyJpZCI6ICJtdWxlIiwgIm4iOiAiU21pcm5vZmYgTXVsZSIsICJwIjogMTIwfSwgeyJpZCI6ICJidWNrZXQiLCAibiI6ICJCdWNrZXQgb2YgRml2ZSAoUGFsZSBQaWxzZW4gb3IgTGlnaHQpIiwgInAiOiA1NTB9LCB7ImlkIjogImhlaW5la2VuIiwgIm4iOiAiSGVpbmVrZW4iLCAicCI6IDE1MH0sIHsiaWQiOiAiY29yb25hIiwgIm4iOiAiQ29yb25hIiwgInAiOiAxNjV9LCB7ImlkIjogInN0ZWxsYSIsICJuIjogIlN0ZWxsYSBBcnRvaXMiLCAicCI6IDIwNX1dfSwgeyJjIjogIldpbmUgYnkgdGhlIEdsYXNzIiwgIm9wZW4iOiBmYWxzZSwgIml0ZW1zIjogW3siaWQiOiAiY2FiY2QiLCAibiI6ICJDYWJlcm5ldCBTYXV2aWdub24gwrcgQ2FzaWxsZXJvIGRlbCBEaWFibG8iLCAicCI6IDQ1MH0sIHsiaWQiOiAiY2FieXQiLCAibiI6ICJDYWJlcm5ldCBTYXV2aWdub24gwrcgWWVsbG93IFRhaWwiLCAicCI6IDMyMH0sIHsiaWQiOiAibWVyY3QiLCAibiI6ICJNZXJsb3QgwrcgQ29uY2hhIHkgVG9ybyIsICJwIjogMzYwfSwgeyJpZCI6ICJtZXJ5dCIsICJuIjogIk1lcmxvdCDCtyBZZWxsb3cgVGFpbCIsICJwIjogMzIwfSwgeyJpZCI6ICJjaGFyamMiLCAibiI6ICJDaGFyZG9ubmF5IMK3IEphY29iJ3MgQ3JlZWsiLCAicCI6IDM0MH0sIHsiaWQiOiAiY2hhcmNkIiwgIm4iOiAiQ2hhcmRvbm5heSDCtyBDYXNpbGxlcm8gZGVsIERpYWJsbyIsICJwIjogNDUwfSwgeyJpZCI6ICJjaGFyeXQiLCAibiI6ICJDaGFyZG9ubmF5IMK3IFllbGxvdyBUYWlsIiwgInAiOiAzMjB9LCB7ImlkIjogInNiY3QiLCAibiI6ICJTYXV2aWdub24gQmxhbmMgwrcgQ29uY2hhIHkgVG9ybyIsICJwIjogMzYwfSwgeyJpZCI6ICJzYmNkIiwgIm4iOiAiU2F1dmlnbm9uIEJsYW5jIMK3IENhc2lsbGVybyBkZWwgRGlhYmxvIiwgInAiOiA0NTB9LCB7ImlkIjogInNieXQiLCAibiI6ICJTYXV2aWdub24gQmxhbmMgwrcgWWVsbG93IFRhaWwiLCAicCI6IDMyMH1dfV0sICJwcmVzZXRzIjogW3sic2lzaWciOiAxLCAiYWRvYm8iOiAxLCAiZ2FybGljIjogMiwgImx5Y2hlZSI6IDEsICJrb3poaCI6IDF9LCB7Im11c2hyb29tIjogMSwgIm1lY2hhZG8iOiAxLCAiamFzbWluZSI6IDIsICJmbGlnaHQiOiAxLCAia2FrYW5pbiI6IDF9LCB7ImNoeHNhbGFkIjogMSwgInRpbnV0dW5nYW4iOiAxLCAiZ2FybGljIjogMiwgInN1bnJpc2UiOiAxLCAia296aGgiOiAxfSwgeyJzaW5hbXBhbHVrYW4iOiAxLCAidGluYXBhbmciOiAxLCAiamFzbWluZSI6IDIsICJkYWxhbmRhbiI6IDIsICJsb2xhaGgiOiAxfV19";
+  let CUSTOM = null;
+  function custom() {
+    if (!CUSTOM) {
+      const bytes = Uint8Array.from(atob(CUSTOM_DATA), c => c.charCodeAt(0));
+      CUSTOM = JSON.parse(new TextDecoder().decode(bytes));
+    }
+    return CUSTOM;
+  }
+  let qty = {};
+  const rows = {};
+  const catCounts = [];
+  let built = false, started = false;
+
+  function buildCatalog() {
+    if (built) return;
+    built = true;
+    const box = $('#catalog');
+    custom().catalog.forEach((c, ci) => {
+      const d = document.createElement('details');
+      d.className = 'cat';
+      d.open = !!c.open;
+      const sum = document.createElement('summary');
+      sum.innerHTML = '<span></span><span class="cat-count"></span>';
+      sum.children[0].textContent = c.c;
+      catCounts[ci] = sum.children[1];
+      d.appendChild(sum);
+      const wrap = document.createElement('div');
+      wrap.className = 'items';
+      c.items.forEach(it => {
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = '<div class="item-info"><span class="item-name"></span><span class="item-note"></span><span class="item-price"></span></div>' +
+          '<div class="stepper"><button type="button" aria-label="Remove one">&minus;</button><span class="qty">0</span><button type="button" aria-label="Add one">+</button></div>';
+        row.querySelector('.item-name').textContent = it.n;
+        const note = row.querySelector('.item-note');
+        if (it.note) note.textContent = it.note; else note.remove();
+        row.querySelector('.item-price').textContent = peso(it.p);
+        const [minus, plus] = row.querySelectorAll('.stepper button');
+        minus.addEventListener('click', () => change(it.id, -1));
+        plus.addEventListener('click', () => change(it.id, +1));
+        rows[it.id] = { row, minus, q: row.querySelector('.qty'), price: it.p, cat: ci };
+        wrap.appendChild(row);
+      });
+      d.appendChild(wrap);
+      box.appendChild(d);
+    });
+  }
+
+  function refresh() {
+    let total = 0, count = 0;
+    const perCat = catCounts.map(() => 0);
+    Object.entries(rows).forEach(([id, r]) => {
+      const n = qty[id] || 0;
+      r.q.textContent = n;
+      r.minus.disabled = n === 0;
+      r.row.classList.toggle('has', n > 0);
+      total += n * r.price;
+      count += n;
+      perCat[r.cat] += n;
+    });
+    perCat.forEach((n, ci) => { catCounts[ci].textContent = n ? n : ''; });
+    $('#total-val').textContent = peso(total);
+    $('#total-count').textContent = `${count} item${count === 1 ? '' : 's'}`;
+  }
+
+  function change(id, d) {
+    qty[id] = Math.max(0, (qty[id] || 0) + d);
+    document.querySelectorAll('#pkg-switch button').forEach(b => b.classList.remove('on'));
+    refresh();
+  }
+
+  function preset(k) {
+    qty = Object.assign({}, custom().presets[k]);
+    document.querySelectorAll('#pkg-switch button').forEach((b, j) => b.classList.toggle('on', j === k));
+    refresh();
+  }
+
+  const sw = $('#pkg-switch');
+  PACKAGES.forEach((_, k) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = k + 1;
+    b.setAttribute('aria-label', `Start from package ${k + 1}`);
+    b.addEventListener('click', () => preset(k));
+    sw.appendChild(b);
+  });
+
+  $('#clear-btn').addEventListener('click', () => {
+    qty = {};
+    document.querySelectorAll('#pkg-switch button').forEach(b => b.classList.remove('on'));
+    refresh();
+  });
+
+  $('#customize-btn').addEventListener('click', () => {
+    buildCatalog();
+    if (!started) { started = true; preset(resultIdx); }
+    show('s-custom');
+    $('#total-bar').hidden = false;
+  });
+  $('#custom-back').addEventListener('click', () => {
+    $('#total-bar').hidden = true;
+    show('s-menu');
+  });
+
+  $('#vault-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const inp = $('#vault-pass');
+    if (norm(inp.value) === atob(KEY)) {
+      inp.value = '';
+      inp.blur();
+      $('#vault-msg').textContent = '';
+      started = false;
+      renderMenu(resultIdx);
+      show('s-menu');
+      setTimeout(() => burst(36), 300);
+    } else {
+      $('#vault-msg').textContent = "Hmm, that's not it 😉";
+      const f = $('#vault-form');
+      f.classList.remove('shake');
+      void f.offsetWidth;
+      f.classList.add('shake');
+      inp.select();
+    }
+  });
+
+  $('#menu-back').addEventListener('click', () => show('s-result'));
+</script>
+</body>
+</html>
